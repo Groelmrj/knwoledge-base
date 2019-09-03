@@ -107,6 +107,32 @@ class EPKB_KB_Search {
 		}
 
 		$result = array();
+
+		/* Add By Me */
+		$curent_user = wp_get_current_user();
+		$city_right = !empty(array_intersect($curent_user->roles,  array("administrator","editor","citypassenger")));
+		
+		$search_params_city = array(
+				's' => $search_terms,
+				'post_type' => EPKB_KB_Handler::get_post_type( $kb_id ),
+				'post_status' => 'publish',      /** only PUBLISHED results */
+				'ignore_sticky_posts' => true,  // sticky posts will not show at the top
+				'posts_per_page' => 20,         // limit search results
+				'no_found_rows' => true,        // query only posts_per_page rather than finding total nof posts for pagination etc.
+				'cache_results' => false,       // don't need that for mostly unique searches
+				'orderby' => 'relevance'
+				,'author' => -13
+				/*,'tax_query' => array(
+									'relation' => 'OR',
+									array(
+										'taxonomy' => 'category',
+										'field'    => 'slug',
+										'terms'    => array( 'documentation, support' ),
+										))*/
+				//,'category_name' => 'documentation,support'
+		);
+		/* End By Me */
+
 		$search_params = array(
 				's' => $search_terms,
 				'post_type' => EPKB_KB_Handler::get_post_type( $kb_id ),
@@ -117,6 +143,14 @@ class EPKB_KB_Search {
 				'cache_results' => false,       // don't need that for mostly unique searches
 				'orderby' => 'relevance'
 		);
+
+		/* Add by Me */		
+		if ($city_right){
+			$found_posts_obj = new WP_Query( $search_params );	
+		}else{
+			$found_posts_obj = new WP_Query( $search_params_city );	
+		}
+		/*End By Me */
 
 		$found_posts_obj = new WP_Query( $search_params );
 		if ( ! empty($found_posts_obj->posts) ) {

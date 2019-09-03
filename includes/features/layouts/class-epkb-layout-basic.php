@@ -293,6 +293,21 @@ class EPKB_Layout_Basic extends EPKB_Layout {
 
 		<ul <?php echo $style . ' ' . $this->get_inline_style( $sub_category_styles ); ?>> <?php
 
+		    	/* Add By Me */
+			$curent_user = wp_get_current_user();
+			$city_right = !empty(array_intersect($curent_user->roles,  array("administrator","editor","citypassenger")));
+			foreach ( $articles_list as $article_id => $article_title ){
+				
+				$author_id = get_post_field( 'post_author', $article_id);
+				//echo $author_id;
+				if (!$city_right && $author_id == 13 ){
+					unset($articles_list[$article_id]);
+					//echo "unset";
+				}
+			}
+			/* End By Me */
+			
+
 			if ( empty($articles_list) ) {
 				echo '<li class="epkb-articles-coming-soon">' . esc_html( $articles_coming_soon_msg ) . '</li>';
 			}
